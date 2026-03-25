@@ -1,0 +1,3 @@
+api.ai.yasinarafat.dev {
+    reverse_proxy host.docker.internal:8000
+}
