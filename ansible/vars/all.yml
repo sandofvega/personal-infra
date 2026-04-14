@@ -1,0 +1,4 @@
+about_me_ai:
+  chat_model: gemini-2.5-flash-lite
+  qdrant:
+    collection: about_me

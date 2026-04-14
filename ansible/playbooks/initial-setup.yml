@@ -1,0 +1,95 @@
+- name: Personal VPS Initial Setup
+  hosts: all
+  become: yes
+  vars_files:
+    - ../vars/all.yml
+    - ../vars/secrets.yml
+
+  tasks:
+    # Docker Installation
+    - name: Install Docker
+      include_role:
+        name: geerlingguy.docker
+
+    - name: Add user to docker group
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+
+    - name: Create a docker network for the web server
+      community.docker.docker_network:
+        name: caddy
+        state: present
+    
+    # Deploy About Me AI
+    - name: Pull About Me AI Image
+      community.docker.docker_image:
+        name: sandofvega/about-me-ai
+        source: pull
+
+    - name: Run About Me AI Container
+      no_log: true
+      community.docker.docker_container:
+        name: about-me-ai
+        image: sandofvega/about-me-ai
+        state: started
+        restart_policy: unless-stopped
+        networks:
+          - name: caddy
+        env:
+          GEMINI_API_KEY: "{{ about_me_ai.gemini_api_key }}"
+          CHAT_MODEL: "{{ about_me_ai.chat_model }}"
+          QDRANT_URL: "{{ about_me_ai.qdrant.url }}"
+          QDRANT_API_KEY: "{{ about_me_ai.qdrant.api_key }}"
+          QDRANT_COLLECTION: "{{ about_me_ai.qdrant.collection }}"
+
+    # Deploy n8n
+    - name: Pull n8n Image
+      community.docker.docker_image:
+        name: docker.n8n.io/n8nio/n8n:stable
+        source: pull
+
+    - name: Run n8n Container
+      community.docker.docker_container:
+        name: n8n
+        image: docker.n8n.io/n8nio/n8n:stable
+        state: started
+        restart_policy: unless-stopped
+        networks:
+          - name: caddy
+        env:
+          GENERIC_TIMEZONE: "Asia/Dhaka"
+          TZ: "Asia/Dhaka"
+          N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+          N8N_RUNNERS_ENABLED: "true"
+        volumes:
+          - "n8n:/home/node/.n8n"
+
+    # Deploy Caddy Reverse Proxy
+    - name: Pull Caddy Image
+      community.docker.docker_image:
+        name: caddy:2.11-alpine
+        source: pull
+
+    - name: Copy Caddyfile
+      copy:
+        src: ../../caddy/Caddyfile
+        dest: ./caddy/Caddyfile
+        mode: '0644'
+
+    - name: Run Caddy Container
+      community.docker.docker_container:
+        name: caddy
+        image: caddy:2.11-alpine
+        state: started
+        restart_policy: unless-stopped
+        networks:
+          - name: caddy
+        ports:
+          - "80:80"
+          - "443:443"
+        volumes:
+          - "~/caddy/Caddyfile:/etc/caddy/Caddyfile"
+          - "~/caddy/data:/data"
+          - "~/caddy/config:/config"

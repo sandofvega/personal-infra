@@ -1,3 +1,11 @@
 api.ai.yasinarafat.dev {
-    reverse_proxy host.docker.internal:8000
+    reverse_proxy about-me-ai:8000
+}
+
+n8n.yasinarafat.dev {
+    reverse_proxy n8n:5678
+}
+
+sandofvega.com, www.sandofvega.com {
+    redir https://yasinarafat.dev{uri} 302
 }
