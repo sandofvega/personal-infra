@@ -1,5 +1,5 @@
 module "remote_backend" {
-  source = "./modules/remote-state"
+  source = "./modules/remote-backend"
 
   bucket_name = var.tf_state_bucket_name
 }
