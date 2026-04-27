@@ -1,10 +1,6 @@
 # Create the S3 Bucket
 resource "aws_s3_bucket" "tf_state" {
   bucket = var.bucket_name
-
-  tags = {
-    ManagedBy   = "Terraform"
-  }
   
   lifecycle {
     prevent_destroy = true

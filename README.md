@@ -1,11 +1,5 @@
 # Personal Infrastructure
 
-#### Terraform Init
-
-```bash
-terraform init -backend-config=config.s3.tfbackend
-```
-
 #### Install Ansible requirements
 
 ```bash

@@ -8,5 +8,11 @@ terraform {
     }
   }
 
-  backend "s3" {}
+  backend "s3" {
+    bucket         = "terraform-state-sandofvega"
+    key            = "terraform.tfstate"
+    region         = "ap-south-1"
+    use_lockfile   = true
+    encrypt        = true
+  }
 }
