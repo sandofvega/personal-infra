@@ -12,6 +12,7 @@
         name: geerlingguy.docker
 
     - name: Add user to docker group
+      no_log: true
       user:
         name: "{{ ansible_user }}"
         groups: docker

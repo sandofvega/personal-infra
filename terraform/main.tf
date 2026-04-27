@@ -1,15 +1,5 @@
-provider "digitalocean" {
-  token = var.do_token
-}
+module "remote_backend" {
+  source = "./modules/remote-state"
 
-resource "digitalocean_droplet" "vps" {
-  name   = "docker-vps"
-  region = "sgp1"
-  size   = "s-1vcpu-1gb"
-  image  = "ubuntu-22-04-x64"
-  ssh_keys = [var.ssh_fingerprint]
-}
-
-output "ip" {
-  value = digitalocean_droplet.vps.ipv4_address
+  bucket_name = var.tf_state_bucket_name
 }
